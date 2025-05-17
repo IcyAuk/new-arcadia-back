@@ -2,7 +2,7 @@
     "name": "rayan/new-arcadia-end",
     "autoload": {
         "psr-4": {
-            "Rayan\\NewArcadiaEnd\\": "src/"
+            "Rayan\\NewArcadiaEnd\\": "App/"
         }
     },
     "authors": [
