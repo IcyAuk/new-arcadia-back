@@ -3,23 +3,15 @@
 require '../vendor/autoload.php';
 
 use App\Core\Middleware\CORSMiddleware;
+use App\Core\Bootstrap\Session;
 
-CORSMiddleware::handle();
-
-//setting cookies
-session_set_cookie_params([
-    'secure' => false, //Ensures the session cookie is only sent over HTTPS connections. 
-    'httponly' => false, //not visible by JS, protection against XSS
-    'samesite' => 'None' //less CSRF protection for API
-]);
-
-session_start();
-session_regenerate_id(true);
+$origin = CORSMiddleware::handle();
+Session::start();
 
 header('Content-Type: application/json');
 echo json_encode([
     'message' => 'Request accepted',
-    'custom' => 'yes, this json originates from the back end',
+    'custom' => 'this json originates from the backend',
     'origin' => $origin,
     'session_id' => session_id()
 ]);

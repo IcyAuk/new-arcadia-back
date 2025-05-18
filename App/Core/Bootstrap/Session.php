@@ -9,7 +9,7 @@ class Session
         session_set_cookie_params([
             'secure' => false,
             'httponly' => false,
-            'samesite' => 'None'
+            'samesite' => 'Lax'
         ]);
         session_start();
         session_regenerate_id(true);

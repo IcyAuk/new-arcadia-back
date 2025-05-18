@@ -1,50 +1,54 @@
 <?php
 
-//This is what turns the back-end into an API. Filters HTTP requests.
-
 namespace App\Core\Middleware;
 
 class CORSMiddleware
 {
-    public static function handle(): void
+    public static function handle(): ?string
     {
-        $allowedOrigins = [
-            "http://new-arcadia-front.test"
-        ];
+        // Load the CORS configuration
+        $config = require '../config/cors.php';
 
-        $origin = $_SERVER["HTTP_ORIGIN"] ?? "";
+        $allowedOrigins = $config['allowed_origins'];
+        $allowedMethods = implode(', ', $config['allowed_methods']);
+        $allowedHeaders = implode(', ', $config['allowed_headers']);
+        $allowCredentials = $config['allow_credentials'] ? 'true' : 'false';
 
-        if($_SERVER["REQUEST_METHOD"] == "OPTIONS")
-        {
-            if(in_array($origin,$allowedOrigins))
-            {
-                header("Access-Control-Allow-Origin: $origin");
-                header("Access-Control-Allow-Credentials: true");
-                header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-                header("Access-Control-Allow-Headers: Content-Type, X-CSRF-Token");
-                http_response_code(204); //no res
-            }
-            else
-            {
-                http_response_code(403); //forbidden
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+        // Handle preflight (OPTIONS) requests
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            if (in_array($origin, $allowedOrigins)) {
+                self::setCorsHeaders($origin, $allowCredentials, $allowedMethods, $allowedHeaders);
+                http_response_code(204); // No Content
+            } else {
+                http_response_code(403); // Forbidden
             }
             exit;
         }
 
-        if(in_array($origin,$allowedOrigins))
-        {
-            header("Access-Control-Allow-Origin: $origin");
-            header("Access-Control-Allow-Credentials: true");
-
-        }
-        else
-        {
-            http_response_code(403);
+        // Handle actual requests
+        if (in_array($origin, $allowedOrigins)) {
+            self::setCorsHeaders($origin, $allowCredentials, $allowedMethods, $allowedHeaders);
+            return $origin;
+        } else {
+            http_response_code(403); // Forbidden
             echo json_encode([
                 'error' => 'Direct Access or Origin Not Allowed',
-                'received origin' => $origin
+                'received_origin' => $origin
             ]);
             exit;
         }
+    }
+
+    /**
+     * Set CORS headers for the response.
+     */
+    private static function setCorsHeaders(string $origin, string $allowCredentials, string $allowedMethods, string $allowedHeaders): void
+    {
+        header("Access-Control-Allow-Origin: $origin");
+        header("Access-Control-Allow-Credentials: $allowCredentials");
+        header("Access-Control-Allow-Methods: $allowedMethods");
+        header("Access-Control-Allow-Headers: $allowedHeaders");
     }
 }
