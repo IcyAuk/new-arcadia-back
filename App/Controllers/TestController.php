@@ -3,35 +3,30 @@
 namespace App\Controllers;
 
 use App\Core\Database;
+use App\Controllers\BaseController;
+use App\Models\TestModel;
 
-class TestController
+class TestController extends BaseController
 {
-    use Database;
-    
+    private $model;
+
     public function __construct()
     {
-
+        $this->model = new TestModel();
     }
 
     public function test()
     {
-        echo json_encode(['test message' => true]);
-        exit;
+
     }
 
     public function index()
     {
-        try
-        {
-
-            $rows = $this->query('SELECT * FROM test');
-            echo json_encode(['success' => true, 'data' => $rows]);
-        }
-        catch(\Exception $e)
-        {
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
-        exit;
+        $this->jsonResponse(
+            [
+                'message' => $this->model->select()
+            ]
+        );
     }
 
 }

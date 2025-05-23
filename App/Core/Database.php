@@ -8,7 +8,7 @@ namespace App\Core;
 
 use Exception;
 
-Trait Database
+class  Database
 {
 
     private static $pdo = null; //static is accessible without creating an object of the class
